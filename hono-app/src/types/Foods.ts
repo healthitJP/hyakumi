@@ -1,20 +1,28 @@
+import { z } from 'zod'
 import { NutritionEnum } from "./NutritionEnum";
-export type Nutrient = {
-	tagName: NutritionEnum;
-	value: number | null;
-	unit: string;
-	isTraceAmount: boolean;
-	estimated: boolean;
-	description: string;
-}
 
-export type FoodItem = {
-	foodId: string;
-	category: string;
-	index: string;
-	foodName: string;
-	nutrients: Nutrient[];
-}
+export const NutrientSchema = z.object({
+	tagName: z.nativeEnum(NutritionEnum),
+	value: z.number().nullable(),
+	unit: z.string(),
+	isTraceAmount: z.boolean(),
+	estimated: z.boolean(),
+	description: z.string(),
+})
 
-export type Foods = FoodItem[]
+export type Nutrient = z.infer<typeof NutrientSchema>
+
+export const FoodItemSchema = z.object({
+	foodId: z.string(),
+	category: z.string(),
+	index: z.string(),
+	foodName: z.string(),
+	nutrients: z.array(NutrientSchema),
+})
+
+export type FoodItem = z.infer<typeof FoodItemSchema>
+
+export const FoodsSchema = z.array(FoodItemSchema)
+
+export type Foods = z.infer<typeof FoodsSchema>
 

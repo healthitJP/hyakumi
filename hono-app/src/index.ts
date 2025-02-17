@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+import { OpenAPIHono } from '@hono/zod-openapi'
 import { Foods } from './types/Foods'
 import { QuerySchema } from './validators/queryValidator'
 import { filterByTagNames, filterByCategories, filterByWhereConditions } from './utils/filter'
@@ -6,14 +6,38 @@ import { sortByNutrient, parseOrderString } from './utils/sort'
 import {WhereCondition} from './types/Query'
 import {NutritionEnum} from './types/NutritionEnum'
 import foodsDataJson from './foods_data.json'
+import { FoodsResponseSchema } from './schema/responseSchema'
+import { createRoute } from '@hono/zod-openapi'
+import { z } from '@hono/zod-openapi'
 
 const foodsData: Foods = foodsDataJson as Foods
 
-const app = new Hono()
+const app = new OpenAPIHono()
 
-app.get('/foods', async (c) => {
+const route = createRoute({
+  method: 'get',
+  path: '/foods',
+  request: {
+    query: QuerySchema,
+  },
+  responses: {
+    200: {
+      content: {
+        'application/json': {
+          schema: FoodsResponseSchema,
+        },
+      },
+      description: 'Retrieve foods',
+    },
+    400: {
+      description: 'Error'
+    }
+  },
+})
+
+app.openapi(route, async (c) => {
   try {
-    const query = QuerySchema.parse(c.req.query())
+    const query = c.req.valid('query')
     let results = foodsData // データソースから取得
 
     if (query.category) {
@@ -50,16 +74,25 @@ app.get('/foods', async (c) => {
 
     results = results.slice(offset, offset + limit)
 
-    return c.json({
+    const response = {
       contents: results,
       totalCount,
       offset,
       limit
-    })
+    }
+
+    return c.json(response)
   } catch (error) {
     return c.json({ error: error }, 400)
   }
 })
 
+app.doc('/doc', {
+  openapi: '3.0.0',
+  info: {
+    version: '1.0.0',
+    title: 'My Foods API',
+  },
+})
 
 export default app
