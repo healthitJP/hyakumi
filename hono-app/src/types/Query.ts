@@ -3,7 +3,7 @@ import { NutritionEnum } from "./NutritionEnum";
 export type FoodQuery = {
   limit?: number;
   offset?: number;
-  orders?: string[];
+  order?: string;
   nutrients?: NutritionEnum[];
   category?: number[];
   where?: WhereCondition[];
