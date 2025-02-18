@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "hono-app",
+  "name": "hyakumi",
   "main": "src/index.ts",
   "compatibility_date": "2025-02-17"
   // "compatibility_flags": [
