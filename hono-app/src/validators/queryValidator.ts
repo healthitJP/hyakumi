@@ -15,7 +15,7 @@ export const QuerySchema = z.object({
   order: z.string().optional()
   .openapi({
     example: 'ENERC_KCAL',
-    description: '取得するコンテンツの並び替えを行います。デフォルトは日本食品標準成分表の順です。\n並び替え対象とする栄養素タグ名をorders=TAGNAME の形式で指定してください。そのタグの値で並び替えられます。\nまた、降順を指定する場合はタグ名の先頭に -（マイナス） を付与してください。\nnullの値が設定されているコンテンツは最後に並べられます。\n指定可能な並び順について\n栄養素の量によって並び替えられます。',
+    description: '取得するコンテンツの並び替えを行います。デフォルトは日本食品標準成分表の順です。\n並び替え対象とする栄養素タグ名をorder=TAGNAME の形式で指定してください。そのタグの値で並び替えられます。\nまた、降順を指定する場合はタグ名の先頭に -（マイナス） を付与してください。\nnullの値が設定されているコンテンツは最後に並べられます。\n指定可能な並び順について\n栄養素の量によって並び替えられます。',
   }),
   nutrients: z.string()
     .transform(str => str.split(','))
@@ -47,7 +47,12 @@ export const QuerySchema = z.object({
     .openapi({
       example: 'WATER>20,ENERC_KCAL<150',
       description: '栄養の条件を記述します。使える演算子は>か<でAND検索します。\nwhere=REFUSE>20,ENERC<5のようにカンマ区切りで値を記載してください。',
-    })
+    }),
+  foodName: z.string().optional()
+    .openapi({
+      example: '米',
+      description: '食品名で検索します。部分一致で検索されます。',
+    }),
 })
 
 export const NutrientsQuerySchema = z.object({

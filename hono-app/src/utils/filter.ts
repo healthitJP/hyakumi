@@ -26,3 +26,7 @@ export const filterByWhereConditions = (conditions: WhereCondition[], foods: Foo
     });
   });
 }
+
+export const filterByFoodName = (foodName: string, foods: Foods): Foods => {
+  return foods.filter(food => food.foodName.includes(foodName));
+}

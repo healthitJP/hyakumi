@@ -1,7 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { Foods, FoodItemSchema } from './types/Foods'
 import { QuerySchema, NutrientsQuerySchema, FoodIdParamSchema } from './validators/queryValidator'
-import { filterByTagNames, filterByCategories, filterByWhereConditions } from './utils/filter'
+import { filterByTagNames, filterByCategories, filterByWhereConditions, filterByFoodName } from './utils/filter'
 import { sortByNutrient, parseOrderString } from './utils/sort'
 import {WhereCondition} from './types/Query'
 import {NutritionEnum} from './types/NutritionEnum'
@@ -23,7 +23,7 @@ const route = createRoute({
   method: 'get',
   path: `${VERSIONTAG}/foods`,
   summary: "栄養評価のされた食品データのリストを取得する",
-  description:"食品データの一覧を取得します。食品データは100gあたりの栄養価が含まれています。\n\n<details><summary>パラメータの説明</summary>\n\n| パラメータ | 型 | 説明 |\n|----------|-----|------|\n| limit | number | 取得件数を指定します。デフォルト値は10です。上限値は100です。 |\n| offset | number | コンテンツを取得開始する位置を、指定した値だけ後ろにずらします。デフォルト値は0です。 |\n| order | string | 取得するコンテンツの並び替えを行います。デフォルトは日本食品標準成分表の順です。並び替え対象とする栄養価タグ名をorders=TAGNAME の形式で指定してください。降順の場合はタグ名の先頭に-を付与。 |\n| nutrients | string | 取得する栄養素を指定します。nutrients=REFUSE,ENERCのようにカンマ区切りで取得したい栄養価タグ名を記載してください。 |\n| category | string | 取得する食べ物の	カテゴリーを指定します。1~18の値をとれます。カンマ区切りで複数指定可能。 |\n| where | string | 栄養の条件を記述します。使える演算子は>もしくは<でAND検索をします。where=REFUSE>20,ENERC<5のように栄養価タグ名を用いた不等式をカンマ区切りで記載します。 |</details>",
+  description:"食品データの一覧を取得します。食品データは100gあたりの栄養価が含まれています。\n\n<details><summary>パラメータの説明</summary>\n\n| パラメータ | 型 | 説明 |\n|----------|-----|------|\n| limit | number | 取得件数を指定します。デフォルト値は10です。上限値は100です。 |\n| offset | number | コンテンツを取得開始する位置を、指定した値だけ後ろにずらします。デフォルト値は0です。 |\n| order | string | 取得するコンテンツの並び替えを行います。デフォルトは日本食品標準成分表の順です。並び替え対象とする栄養価タグ名をorder=TAGNAME の形式で指定してください。降順の場合はタグ名の先頭に-を付与。 |\n| nutrients | string | 取得する栄養素を指定します。nutrients=REFUSE,ENERCのようにカンマ区切りで取得したい栄養価タグ名を記載してください。 |\n| category | string | 取得する食べ物の	カテゴリーを指定します。1~18の値をとれます。カンマ区切りで複数指定可能。 |\n| where | string | 栄養の条件を記述します。使える演算子は>もしくは<でAND検索をします。where=REFUSE>20,ENERC<5のように栄養価タグ名を用いた不等式をカンマ区切りで記載します。 |\n| foodName | string | 食品名で検索します。部分一致で検索されます。 |</details>",
   operationId: "getFoodsData",
   request: {
     query: QuerySchema,
@@ -47,6 +47,10 @@ app.openapi(route, async (c) => {
   try {
     const query = c.req.valid('query')
     let results = foodsData // データソースから取得
+
+    if (query.foodName) {
+      results = filterByFoodName(query.foodName, results)
+    }
 
     if (query.category) {
       results = filterByCategories(query.category, results)
