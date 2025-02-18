@@ -5,12 +5,12 @@ import { filterByTagNames, filterByCategories, filterByWhereConditions } from '.
 import { sortByNutrient, parseOrderString } from './utils/sort'
 import {WhereCondition} from './types/Query'
 import {NutritionEnum} from './types/NutritionEnum'
-import foodsDataJson from './foods_data.json'
+// import foodsDataJson from './foods_data.json'
 import { FoodsResponseSchema } from './schema/responseSchema'
 import { createRoute } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
-
-const foodsData: Foods = foodsDataJson as Foods
+import { foodsData } from './data_store/FoodsData'
+// const foodsData: Foods = foodsDataJson as Foods
 
 const app = new OpenAPIHono()
 const VERSIONTAG = "v1"
